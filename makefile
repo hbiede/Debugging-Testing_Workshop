@@ -6,4 +6,4 @@ sqrt:
 	$(CC) $(CCFLAGS) sqrt.c -o sqrt
 
 clean:
-	rm -rf sqrt
+	rm -rf *~ *.o *.dSYM
