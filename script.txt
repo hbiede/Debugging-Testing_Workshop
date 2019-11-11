@@ -1,0 +1,47 @@
+Before the workshop (on the CSE server): 
+git clone https://github.com/hbiede/GDB-Tutorial.git
+cd GDB-Tutorial
+make
+
+Workshop (assuming you are in the correct directory and not running GDB):
+
+“GDB is a debugging tool for testing C/C++ among other languages. GDB would be extremely useful to those of you teaching C as it would permit you to step through code and see what is happening at any given point in the code. I have a slightly modified version of the square root assignment from the 155E assignment 2 here”
+./sqrt 10
+“As you can see it is stuck in some sort of infinite loop. While someone experienced in C would be able to find the planted bug relatively quickly, we are going to walk through the process of debugging it in GDB.”
+gdb --args ./sqrt 10
+“I call the gdb executable and the program I want to run. Since I am giving the program arguments, I also have to use the args flag”
+layout next 
+“Using layout allows me to see the code, and eventually see potential failure points.”
+run
+“Now we are still in that infinite loop, and I am sure some of you have already spotted the problem”
+Control + C
+“When I break out of the program with Control + C, we can see that the hold up is happening in the while loop on line 20. Let’s say you still haven’t found the bug and want to see what is happening on a more in depth level. I can type next, or just n, to step to the next line.”
+n 
+“You can even run the same command repeatedly by pressing enter again after running it the first time”
+[Press enter until on line 22]
+“Since x is our loop condition, lets see what it is currently by printing the value in x.”
+print x
+“2.5. Well, since 10 divided by 4 is 2.5, that’s what we would expect on the first iteration, but this program was running for awhile longer than that. Let’s circle back around to line 22 with a breakpoint.”
+break 22
+c
+“Break allows us to set a metaphorical stop sign that will stop the debugger when we tell it to continue using either continue or just c for short. Let’s have it print x every time we loop around”
+display x
+c (repeat a few times to hammer the point home)
+“Ok, x isn’t changing. Instead of following it manually, let’s let gdb tell us if it ever changes, what the old value was, what the new value is, and stops the program just like a break point. I am going to set a watch point that will tell us whenever x changes and I am also going to remove the break point we set earlier.”
+clear 22
+undisplay 1
+watch x
+c
+“Well, as you can see it is still infinitely looping because it hasn’t stopped to tell us about x changing yet.”
+Control + C
+n (repeat until on line 22)
+“Let’s see if the function divideBy4() is dividing the number correctly. Normally, if I used next again, the next line it would look at would be line 23, but in this case I want to follow the stack inside the function call by using step, or s for short.”
+s
+“Now here we see the problem. The student has hardcoded the dividend instead of using n. Admittedly this is a problem you could probably spot by looking at the code, but this was just a simple demonstration of some of the power of GDB”
+“Other cool commands to know in GDB:
+break [function name] - useful for stopping whenever a specific function starts
+Tip: break main lets you break immediately so you can run through the whole program using only step and next
+print *arrayName@length - You can print an entire array like this, but you have to remember to dereference the array and to include a length
+break [line #] if [condition] - this acts as a breakpoint with any normal c if-condition, so you can do something like i > 100 to look at late loop iterations, strcmp to stop if a string is or is not set to a specific value, etc. 
+For more GDB practice, take a look at this week’s 155E hack: bit.ly/gdbhack
+GDB Cheat Sheet
